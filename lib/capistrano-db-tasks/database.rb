@@ -40,7 +40,7 @@ module Database
       if mysql?
         "mysqldump #{credentials} #{database} --lock-tables=false"
       elsif postgresql?
-        "pg_dump #{credentials} -c -O #{database}"
+        "#{postgres_password_prefix} pg_dump #{credentials} -c -O #{database}"
       end
     end
 
@@ -55,8 +55,12 @@ module Database
     def client_cmd
       case
       when mysql? then "mysql"
-      when postgresql? then (password_present? ? "PGPASSWORD=#{@config['password']} " : "") + "psql"
+      when postgresql? then postgres_password_prefix + "psql"
       end
+    end
+
+    def postgres_password_prefix
+      password_present? ? "PGPASSWORD=#{@config['password']} " : ""
     end
 
     def password_present?
