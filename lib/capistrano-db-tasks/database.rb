@@ -55,7 +55,7 @@ module Database
     def client_cmd
       case
       when mysql? then "mysql"
-      when postgres? then (password_present? ? "PGPASSWORD=#{@config['password']} " : "") + "psql"
+      when postgresql? then (password_present? ? "PGPASSWORD=#{@config['password']} " : "") + "psql"
       end
     end
 
