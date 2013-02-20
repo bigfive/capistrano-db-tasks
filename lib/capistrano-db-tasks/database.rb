@@ -40,7 +40,7 @@ module Database
       if mysql?
         "mysqldump #{credentials} #{database} --lock-tables=false"
       elsif postgresql?
-        "pg_dump #{credentials} -c -O #{database}"
+        "pg_dump #{credentials} --clean --no-owner #{database}"
       end
     end
 
