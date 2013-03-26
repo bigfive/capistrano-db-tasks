@@ -40,7 +40,7 @@ module Database
       if mysql?
         "mysqldump #{credentials} #{database} --lock-tables=false"
       elsif postgresql?
-        "#{postgres_password_prefix} pg_dump #{credentials} -c -O #{database}"
+        "#{postgres_password_prefix} pg_dump #{credentials} --clean --no-owner #{database}"
       end
     end
 
@@ -76,7 +76,7 @@ module Database
       @cap.run("cat #{@cap.current_path}/config/database.yml") do |c, s, d|
         @config += d
       end
-      @config = YAML.load(@config)[@cap.rails_env]
+      @config = YAML.load(@config)["#{@cap.rails_env}"]
     end
 
     def dump
@@ -101,7 +101,7 @@ module Database
   class Local < Base
     def initialize(cap_instance)
       super(cap_instance)
-      @config = YAML.load_file(File.join('config', 'database.yml'))[@cap.local_rails_env]
+      @config = YAML.load_file(File.join('config', 'database.yml'))["#{@cap.local_rails_env}"]
       puts "local #{@config}"
     end
 
