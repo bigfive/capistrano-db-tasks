@@ -15,9 +15,9 @@ module Database
 
     def credentials
       if mysql?
-        " -u #{@config['username']} " + (password_present? ? " -p\"#{@config['password']}\" " : '') + (@config['host'] ? " -h #{@config['host']}" : '') + (@config['socket'] ? " -S#{@config['socket']}" : '')
+        (@config['username'] ? " -u #{@config['username']} " : '') + (password_present? ? " -p\"#{@config['password']}\" " : '') + (@config['host'] ? " -h #{@config['host']}" : '') + (@config['socket'] ? " -S#{@config['socket']}" : '')
       elsif postgresql?
-        " -U #{@config['username']} " + (@config['host'] ? " -h #{@config['host']}" : '')
+        (@config['username'] ? " -U #{@config['username']} " : '') + (@config['host'] ? " -h #{@config['host']}" : '')
       end
     end
 
@@ -72,8 +72,11 @@ module Database
   class Remote < Base
     def initialize(cap_instance)
       super(cap_instance)
-      # YAML::ENGINE.yamler = 'syck'
-      @cap.run("cat #{@cap.current_path}/config/database.yml") { |c, s, d| @config = YAML.load(d)[@cap.rails_env] }
+      @config = ""
+      @cap.run("cat #{@cap.current_path}/config/database.yml") do |c, s, d|
+        @config += d
+      end
+      @config = YAML.load(@config)[@cap.rails_env]
     end
 
     def dump
@@ -99,6 +102,7 @@ module Database
     def initialize(cap_instance)
       super(cap_instance)
       @config = YAML.load_file(File.join('config', 'database.yml'))[@cap.local_rails_env]
+      puts "local #{@config}"
     end
 
     # cleanup = true removes the mysqldump file after loading, false leaves it in db/
